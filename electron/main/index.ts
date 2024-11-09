@@ -24,7 +24,7 @@ if (!app.requestSingleInstanceLock()) {
 let win: BrowserWindow | null = null;
 const preload = path.join(__dirname, "../preload/index.mjs");
 const indexHtml = path.join(RENDERER_DIST, "index.html");
-const isProduction = true;
+const isProduction = false;
 
 async function createWindow() {
     win = new BrowserWindow({
@@ -114,172 +114,77 @@ app.whenReady().then(() => {
         return DatabaseManager.deleteUser(id);
     });
 
-    // ********************Products********************
+    // ********************Transactions********************
+    ipcMain.handle(
+        "get-policemen",
+        async (_, searchQuery: string, limit?: number, offset?: number) => {
+            return DatabaseManager.getPoliceMen(searchQuery, limit, offset);
+        }
+    );
 
-    ipcMain.handle("get-products", async (_, endDate?: string) => {
-        return DatabaseManager.getProducts(endDate);
-    });
-    ipcMain.handle("get-products-by-id", async (_, productId) => {
-        return DatabaseManager.getProductById(productId);
+    ipcMain.handle("get-policemen-by-id", async (_, policeMenId) => {
+        return DatabaseManager.getPoliceManById(policeMenId);
     });
 
     ipcMain.handle(
-        "add-products",
+        "add-policemen",
         async (
             _,
-            name,
-            storeId,
-            unitId,
-            createdDate,
-            expiryDate,
+            username,
+            degree,
+            policeNo,
+            birthDate,
+            joinDate,
+            address,
+            job,
+            image,
             description
         ) => {
-            return DatabaseManager.addProduct(
-                name,
-                storeId,
-                unitId,
-                createdDate,
-                expiryDate,
+            return DatabaseManager.addPoliceMan(
+                username,
+                degree,
+                policeNo,
+                birthDate,
+                joinDate,
+                address,
+                job,
+                image,
                 description
             );
         }
     );
 
     ipcMain.handle(
-        "update-products",
+        "update-policemen",
         async (
             _,
             id,
-            name,
-            storeId,
-            unitId,
-            createdDate,
-            expiryDate,
+            username,
+            degree,
+            policeNo,
+            birthDate,
+            joinDate,
+            address,
+            job,
+            image,
             description
         ) => {
-            return DatabaseManager.updateProduct(
+            return DatabaseManager.updatePoliceMan(
                 id,
-                name,
-                storeId,
-                unitId,
-                createdDate,
-                expiryDate,
+                username,
+                degree,
+                policeNo,
+                birthDate,
+                joinDate,
+                address,
+                job,
+                image,
                 description
             );
         }
     );
-
-    ipcMain.handle("delete-products", async (_, id) => {
-        return DatabaseManager.deleteProduct(id);
-    });
-
-    // ********************Transactions********************
-    ipcMain.handle(
-        "get-transactions",
-        async (
-            _,
-            productId?: number,
-            startDate?: string,
-            searchDate?: string,
-            limit?: number,
-            offset?: number
-        ) => {
-            return DatabaseManager.getTransactions(
-                productId,
-                startDate,
-                searchDate,
-                limit,
-                offset
-            );
-        }
-    );
-
-    ipcMain.handle("get-first-date-in-transactions", async () => {
-        return DatabaseManager.getFirstTransactionDate();
-    });
-    ipcMain.handle("delete-all-transactions", async (_, productId: number) => {
-        return DatabaseManager.deleteAllTransactions(productId);
-    });
-    ipcMain.handle("get-transactions-by-id", async (_, transactionId) => {
-        return DatabaseManager.getTransactionById(transactionId);
-    });
-
-    ipcMain.handle(
-        "add-transactions",
-        async (
-            _,
-            productId: number,
-            increase: number,
-            decrease: number,
-            description: string,
-            createdAt: string
-        ) => {
-            return DatabaseManager.addTransaction(
-                productId,
-                increase,
-                decrease,
-                description,
-                createdAt
-            );
-        }
-    );
-
-    ipcMain.handle(
-        "update-transactions",
-        async (
-            _,
-            id: number,
-            increase: number,
-            decrease: number,
-            description: string
-        ) => {
-            return DatabaseManager.updateTransaction(
-                id,
-                increase,
-                decrease,
-                description
-            );
-        }
-    );
-
-    ipcMain.handle("delete-transactions", async (_, id: number) => {
-        return DatabaseManager.deleteTransaction(id);
-    });
-
-    // ********************Stores********************
-
-    ipcMain.handle("get-stores", async () => {
-        return DatabaseManager.getStores();
-    });
-
-    ipcMain.handle("add-stores", async (_, name, description) => {
-        return DatabaseManager.addStore(name, description);
-    });
-
-    ipcMain.handle("update-stores", async (_, id, name, description) => {
-        return DatabaseManager.updateStore(id, name, description);
-    });
-
-    ipcMain.handle("delete-stores", async (_, id) => {
-        return DatabaseManager.deleteStore(id);
-    });
-
-    // ********************Units********************
-
-    ipcMain.handle("get-units", async () => {
-        return DatabaseManager.getUnits();
-    });
-
-    ipcMain.handle("add-units", async (_, name, description) => {
-        return DatabaseManager.addUnit(name, description);
-    });
-
-    ipcMain.handle("update-units", async (_, id, name, description) => {
-        return DatabaseManager.updateUnit(id, name, description);
-    });
-
-    ipcMain.handle("delete-units", async (_, id) => {
-        return DatabaseManager.deleteUnit(id);
+    ipcMain.handle("delete-policemen", async (_, id) => {
+        return DatabaseManager.deletePoliceMan(id);
     });
 
     ipcMain.handle("show-prompt", async (_, message) => {

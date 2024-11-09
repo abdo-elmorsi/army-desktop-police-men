@@ -1,6 +1,5 @@
 import { differenceInDays, parseISO } from "date-fns";
 
-
 export function formatComma(value, minimumFractionDigits = 3) {
     value = value ? parseFloat(value) : 0;
     return value.toLocaleString("en-US", {
@@ -35,8 +34,19 @@ export function getDateDifference(startDate, endDate) {
     }
 }
 
-
-
 export const isExpiringSoon = (expiryDate) => {
     return differenceInDays(parseISO(expiryDate), new Date()) < 30;
-  };
+};
+
+export function convertImageToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            resolve(reader.result);
+        };
+        reader.onerror = (error) => {
+            reject(error);
+        };
+        reader.readAsDataURL(file);
+    });
+}

@@ -9,29 +9,28 @@ import { FaArrowTrendDown, FaArrowTrendUp } from 'react-icons/fa6';
 import { FaBalanceScale } from 'react-icons/fa';
 import debounce from 'lodash.debounce';
 
-const TransactionsHistory = () => {
-  const { id: productId } = useParams();
+const PoliceMen = () => {
   const navigate = useNavigate();
   const itemsPerPage = 5;
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { data: product, fetchData: fetchProducts, loading: loadingProduct } = useDatabase('products', productId);
   const {
-    data: { data: transactions, pagination },
+    data: { data: policemen, pagination },
     fetchData,
     loading,
     error,
     deleteItem
   } = useDatabase(
-    'transactions',
+    'policemen',
     null,
-    [productId, null, searchQuery, itemsPerPage, (currentPage - 1) * itemsPerPage]
+    [searchQuery, itemsPerPage, (currentPage - 1) * itemsPerPage]
   );
+  console.log(policemen);
 
   const debouncedFetchData = useRef(debounce((query) => {
-    fetchData(null, [productId, null, query, itemsPerPage, (currentPage - 1) * itemsPerPage]);
+    fetchData(null, [query, itemsPerPage, (currentPage - 1) * itemsPerPage]);
   }, 1000)).current;
 
   const handleDelete = useCallback(async (id) => {
@@ -41,9 +40,8 @@ const TransactionsHistory = () => {
       : await window.ipcRenderer.showPrompt(confirmationMessage, 'John Doe');
 
     if (isConfirmed) {
-      id ? await deleteItem(id) : await window.ipcRenderer.invoke('delete-all-transactions', productId);
-      fetchProducts(productId)
-      !id && fetchData(null, [productId, null, "", 5, 0]);
+      await deleteItem(id);
+      !id && fetchData(null, [null, 5, 0]);
     }
   }, [deleteItem]);
 
@@ -62,8 +60,8 @@ const TransactionsHistory = () => {
   };
 
   useEffect(() => {
-    if (!loading && productId) {
-      fetchData(null, [productId, null, searchQuery, itemsPerPage, (currentPage - 1) * itemsPerPage]);
+    if (!loading) {
+      fetchData(null, [searchQuery, itemsPerPage, (currentPage - 1) * itemsPerPage]);
     }
   }, [currentPage]);
 
@@ -76,56 +74,45 @@ const TransactionsHistory = () => {
       <nav className="text-gray-700 dark:text-gray-300 mb-4">
         <ul className="list-reset flex">
           <li>
-            <Link to="/products" className="text-primary hover:underline">المنتجات</Link>
-          </li>
-          <li className="mx-2">/</li>
-          <li>
-            <Link to={`/transactions/${productId}`} className="text-gray-700 dark:text-gray-300 hover:underline">
-              الحركات ({loadingProduct ? "تحميل..." : product?.name})
-            </Link>
+            <Link to="/policemen" className="text-primary hover:underline">المنتجات</Link>
           </li>
         </ul>
       </nav>
 
       <div className='flex justify-between items-center w-full'>
         <Link
-          to={`/transactions/add?product-id=${productId}`}
+          to={`/policemen/add`}
           className="bg-primary text-white px-4 py-2 rounded hover:bg-hoverPrimary mb-4 inline-block"
         >
           اضافه
         </Link>
-        <Button
-          title="يفضل الحذف مع بداية سنه جديده"
-          onClick={() => handleDelete(null)}
-          className="btn--red flex gap-2 items-center"
-        >
-          <BiTrash />
-          <span>
-            حذف الكل
-          </span>
-        </Button>
       </div>
+
 
       <div className="mb-4 pe-7">
         <Input
           type="text"
-          placeholder="ابحث عن حركة بالتاريخ"
+          placeholder="ابحث بالأسم, رقم الرطة"
           className="p-2 w-96 border rounded-md"
           value={searchQuery}
           onChange={handleSearchChange}
         />
       </div>
-
       <div className="overflow-auto" style={{ height: '56vh' }}>
         <table className="w-full bg-white dark:bg-gray-800 shadow-md rounded border border-gray-200 dark:border-gray-700">
           <thead className="bg-gray-300 dark:bg-gray-800 sticky top-0 z-10">
             <tr>
-              <th className="p-4 text-gray-800 dark:text-gray-300">الرقم التسلسلي</th>
-              <th className="p-4 text-gray-800 dark:text-gray-300">تاريخ الحركه</th>
-              <th className="p-4 text-gray-800 dark:text-gray-300">اضافه</th>
-              <th className="p-4 text-gray-800 dark:text-gray-300">خصم</th>
-              <th className="p-4 text-gray-800 dark:text-gray-300">الرصيد</th>
-              <th className="p-4 text-gray-800 dark:text-gray-300">الوصف</th>
+              <th className="p-4 text-gray-800 dark:text-gray-300">#</th>
+              <th className="p-4 text-gray-800 dark:text-gray-300">الأسم</th>
+              <th className="p-4 text-gray-800 dark:text-gray-300">الدرجة</th>
+              <th className="p-4 text-gray-800 dark:text-gray-300">الرقم الشرطة</th>
+              {/* <th className="p-4 text-gray-800 dark:text-gray-300">تاريخ الميلاد</th> */}
+              {/* <th className="p-4 text-gray-800 dark:text-gray-300">تاريخ التعيين</th> */}
+              <th className="p-4 text-gray-800 dark:text-gray-300">محل الاقامة</th>
+              <th className="p-4 text-gray-800 dark:text-gray-300">العمل المسند اليه</th>
+              {/* <th className="p-4 text-gray-800 dark:text-gray-300">تاريخ الانشاء</th> */}
+              <th className="p-4 text-gray-800 dark:text-gray-300">الصورة</th>
+              {/* <th className="p-4 text-gray-800 dark:text-gray-300">الوصف</th> */}
               <th className="p-4 text-gray-800 dark:text-gray-300">الاوامر</th>
             </tr>
           </thead>
@@ -136,46 +123,30 @@ const TransactionsHistory = () => {
               ))
             ) : (
               <>
-                {transactions.length > 0 && (
-                  <tr className="bg-gray-100 dark:bg-gray-900 sticky top-12 z-10">
-                    <td className="text-center p-4 text-gray-800 dark:text-gray-200" colSpan={2}>المجموع</td>
-                    <td className="text-center p-4 text-green-500 gap-2">
-                      <FaArrowTrendUp />
-                      <span className='mx-2'>{formatComma(product.increase)}</span>
-                    </td>
-                    <td className="text-center p-4 text-red-500 gap-2">
-                      <FaArrowTrendDown />
-                      <span className='mx-2'>{formatComma(product.decrease)}</span>
-                    </td>
-                    <td className="text-center p-4 text-primary gap-2 font-bold">
-                      <FaBalanceScale />
-                      <span className='mx-2'>{formatComma(product.balance)}</span>
-                    </td>
-                    <td className="p-4" colSpan={2}></td>
-                  </tr>
-                )}
-                {transactions.map((transaction, i) => (
-                  <tr key={transaction.id}>
+                {policemen?.map((policeman, i) => (
+                  <tr key={policeman.id}>
                     <td className="text-center p-4 text-gray-800 dark:text-gray-200">{(currentPage - 1) * itemsPerPage + i + 1}</td>
-                    <td className="text-center p-4 text-gray-800 dark:text-gray-200">{format(transaction.createdAt, "yyyy-MM-dd")}</td>
-                    <td className="text-center p-4 text-green-500 gap-2">
-                      <FaArrowTrendUp />
-                      <span className='mx-2'>{formatComma(transaction.increase)}</span>
+                    <td className="text-center p-4 text-gray-800 dark:text-gray-200">{policeman.username}</td>
+                    <td className="text-center p-4 text-gray-800 dark:text-gray-200">{policeman.degree}</td>
+                    <td className="text-center p-4 text-gray-800 dark:text-gray-200">{policeman.policeNo}</td>
+                    {/* <td className="text-center p-4 text-gray-800 dark:text-gray-200">{format(new Date(policeman.birthDate), "yyyy-MM-dd")}</td> */}
+                    {/* <td className="text-center p-4 text-gray-800 dark:text-gray-200">{format(new Date(policeman.joinDate), "yyyy-MM-dd")}</td> */}
+                    <td className="text-center p-4 text-gray-800 dark:text-gray-200">{policeman.address}</td>
+                    <td className="text-center p-4 text-gray-800 dark:text-gray-200">{policeman.job}</td>
+                    {/* <td className="text-center p-4 text-gray-800 dark:text-gray-200">{format(new Date(policeman.createdAt), "yyyy-MM-dd")}</td> */}
+                    <td className="text-center p-4 text-gray-800 dark:text-gray-200">
+                      {policeman.image ? (
+                        <img src={policeman.image} alt={policeman.username} className="w-10 h-10 object-cover rounded-full m-0" />
+                      ) : (
+                        <span>لا يوجد صورة</span>
+                      )}
                     </td>
-                    <td className="text-center p-4 text-red-500 gap-2">
-                      <FaArrowTrendDown />
-                      <span className='mx-2'>{formatComma(transaction.decrease)}</span>
-                    </td>
-                    <td className="text-center p-4 text-primary gap-2">
-                      <FaBalanceScale />
-                      <span className='mx-2'>{formatComma(transaction.increase - transaction.decrease)}</span>
-                    </td>
-                    <td className="text-center p-4 text-gray-800 dark:text-gray-200">{transaction?.description}</td>
+                    {/* <td className="text-center p-4 text-gray-800 dark:text-gray-200">{policeman.description}</td> */}
 
                     <td className="p-4 flex justify-center gap-2">
                       <Button
                         disabled={loading}
-                        onClick={() => navigate(`/transactions/edit/${transaction.id}?product-id=${productId}`)}
+                        onClick={() => navigate(`/policemen/edit/${policeman.id}`)}
                         className="bg-primary text-white flex items-center gap-2"
                       >
                         <BiEdit />
@@ -183,7 +154,7 @@ const TransactionsHistory = () => {
                       </Button>
                       <Button
                         disabled={loading}
-                        onClick={() => handleDelete(transaction.id)}
+                        onClick={() => handleDelete(policeman.id)}
                         className="btn--red flex items-center gap-2"
                       >
                         <BiTrash />
@@ -216,18 +187,24 @@ const TableSkeleton = () => (
       <div className="animate-pulse bg-gray-300 rounded h-8 w-32 mx-auto"></div>
     </td>
     <td className="p-4 text-center">
-      <div className="animate-pulse bg-gray-300 rounded h-8 w-16 mx-auto"></div>
+      <div className="animate-pulse bg-gray-300 rounded h-8 w-24 mx-auto"></div>
     </td>
     <td className="p-4 text-center">
-      <div className="animate-pulse bg-gray-300 rounded h-8 w-16 mx-auto"></div>
+      <div className="animate-pulse bg-gray-300 rounded h-8 w-24 mx-auto"></div>
     </td>
     <td className="p-4 text-center">
-      <div className="animate-pulse bg-gray-300 rounded h-8 w-16 mx-auto"></div>
+      <div className="animate-pulse bg-gray-300 rounded h-8 w-24 mx-auto"></div>
     </td>
     <td className="p-4 text-center">
-      <div className="animate-pulse bg-gray-300 rounded h-8 w-12 mx-auto"></div>
+      <div className="animate-pulse bg-gray-300 rounded h-8 w-24 mx-auto"></div>
+    </td>
+    <td className="p-4 text-center">
+      <div className="animate-pulse bg-gray-300 rounded h-8 w-32 mx-auto"></div>
+    </td>
+    <td className="p-4 text-center">
+      <div className="animate-pulse bg-gray-300 rounded h-8 w-24 mx-auto"></div>
     </td>
   </tr>
 );
 
-export default TransactionsHistory;
+export default PoliceMen;

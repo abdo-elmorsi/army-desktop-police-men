@@ -59,7 +59,7 @@ const Input = ({
             focus:shadow-outline-blue
             focus:border-primary
             ${className}
-            ${hasWarning ? "border-red-500" : "border-gray-300 dark:border-gray-600"}
+            ${hasWarning ? "border-red-500" : "border-gray-300 dark:border-gray-500"}
             hover:border-primary
           `}
           {...props}

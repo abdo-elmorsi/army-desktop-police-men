@@ -28,21 +28,9 @@ const Sidebar = () => {
 
     },
     {
-      to: '/products',
-      label: 'المنتجات',
-      icon: (isActive) => <AiOutlineProduct size={22} className={isActive ? "text-white" : "text-primary hover:text-white"} />
-
-    },
-    {
-      to: '/stores',
-      label: 'المخازن',
-      icon: (isActive) => <MdOutlineStorefront size={22} className={isActive ? "text-white" : "text-primary hover:text-white"} />
-
-    },
-    {
-      to: '/units',
-      label: 'وحدات القياس',
-      icon: (isActive) => <MdOutlineBalance size={22} className={isActive ? "text-white" : "text-primary hover:text-white"} />
+      to: '/policemen',
+      label: 'الأفراد',
+      icon: (isActive) => <BiUser size={22} className={isActive ? "text-white" : "text-primary hover:text-white"} />
 
     },
     {
@@ -51,12 +39,12 @@ const Sidebar = () => {
       icon: (isActive) => <MdSettings size={22} className={isActive ? "text-white" : "text-primary hover:text-white"} />
 
     },
-    // {
-    //   to: '/users',
-    //   label: 'المستخدمين',
-    //   icon: (isActive) =>  <BiUserPlus size={22} className={isActive ? "text-white":"text-primary hover:text-white"} />
+    {
+      to: '/users',
+      label: 'المستخدمين',
+      icon: (isActive) =>  <BiUserPlus size={22} className={isActive ? "text-white":"text-primary hover:text-white"} />
 
-    // },
+    },
     // Add more links here as needed
   ];
 
